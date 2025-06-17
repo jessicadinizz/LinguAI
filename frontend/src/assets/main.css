@@ -1,0 +1,14 @@
+@import './base.css';
+
+* {
+  font-family: 'Urbanist', sans-serif !important;
+}
+
+#app {
+  max-width: 1920px;
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+}
