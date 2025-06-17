@@ -63,7 +63,7 @@ Base.metadata.create_all(bind=engine)
 Para rodar o backend, execute o comando:
 
 ```bash
-uvicorn backend.main:app --reload
+python -m uvicorn main:app --reload --port 8001
 ```
 
 Isso iniciará o servidor FastAPI na URL `http://127.0.0.1:8000`. Você pode acessar a documentação interativa da API em `http://127.0.0.1:8000/docs`.
