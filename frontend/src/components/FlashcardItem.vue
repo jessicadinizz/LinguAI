@@ -1,44 +1,39 @@
 <template>
-  <div class="flashcard">
-    <div class="flashcard-word">{{ card.word }}</div>
-    <div class="flashcard-translation">{{ card.translation }}</div>
-    <div class="flashcard-example">{{ card.example }}</div>
+  <div v-for="(flashcard, index) in flashcards" :key="index" class="flashcard">
+    <p class="flashcard-word">{{ flashcard.front }}</p>
+    <p class="flashcard-translation">{{ flashcard.back }}</p>
+    <p v-if="flashcard.example" class="flashcard-example">{{ flashcard.example }}</p>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'FlashcardItem',
-  props: {
-    card: Object,
+<script setup>
+defineProps({
+  flashcards: {
+    type: Array,
+    required: true,
   },
-}
+})
 </script>
 
 <style scoped>
 .flashcard {
-  background-color: #1f1f1f;
+  background-color: #f3f4f6;
   padding: 1rem;
-  border-radius: 10px;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-  transition: transform 0.2s;
-}
-.flashcard:hover {
-  transform: scale(1.02);
+  border-radius: 8px;
+  margin-top: 1rem;
 }
 .flashcard-word {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #4fc3f7;
+  font-weight: 500;
+  color: #160d1c;
 }
 .flashcard-translation {
-  font-size: 1.1rem;
-  color: #81c784;
+  font-size: 14px;
+  color: #7a479e;
 }
 .flashcard-example {
-  font-size: 0.95rem;
-  color: #ccc;
+  font-size: 12px;
+  color: #555a;
   margin-top: 0.5rem;
+  font-style: italic;
 }
 </style>

@@ -3,34 +3,45 @@
     <div class="max-width-container">
       <h2 class="features-title">See the Magic in Action</h2>
       <div class="grid-container">
-        <div class="card">
-          <h3 class="card-title">Generated Flashcards</h3>
+        <!-- Flashcards Card -->
+        <div v-if="activities.length > 0 && flashcards.length > 0" class="card">
+          <h3 class="card-title">Recent Generated Flashcards</h3>
           <div class="card-content">
-            <div class="flashcard">
+            <!-- Exibe no máximo 3 flashcards mais recentes -->
+            <div
+              v-for="(flashcard, index) in flashcards.slice(0, 3)"
+              :key="index"
+              class="flashcard"
+            >
               <div class="flashcard-text">
-                <p class="flashcard-word">Hola</p>
-                <p class="flashcard-translation">Hello</p>
-              </div>
-              <span class="icon">🔊</span>
-            </div>
-            <div class="flashcard">
-              <div class="flashcard-text">
-                <p class="flashcard-word">Mundo</p>
-                <p class="flashcard-translation">World</p>
+                <p class="flashcard-word">{{ flashcard.front }}</p>
+                <p class="flashcard-translation">{{ flashcard.back }}</p>
               </div>
               <span class="icon">🔊</span>
             </div>
           </div>
         </div>
-        <div class="card">
-          <h3 class="card-title">Interactive Quiz</h3>
+
+        <!-- Quiz Card -->
+        <div v-if="activities.length > 0 && quiz.length > 0" class="card">
+          <h3 class="card-title">Recent Interactive Quiz</h3>
           <div class="card-content">
-            <p class="quiz-question">What is "adiós" in English?</p>
+            <!-- Exibe o quiz mais recente -->
+            <p class="quiz-question">{{ quiz[0].pergunta }}</p>
             <div class="quiz-options">
-              <button class="quiz-option">A. Hello</button>
-              <button class="quiz-option">B. Goodbye</button>
-              <button class="quiz-option">C. Please</button>
+              <button v-for="(option, index) in quiz[0].opcoes" :key="index" class="quiz-option">
+                {{ option }}
+              </button>
             </div>
+          </div>
+        </div>
+
+        <!-- No Activities -->
+        <div v-else class="card">
+          <h3 class="card-title">No Recent Activities</h3>
+          <div class="card-content">
+            <p>No activities found. Start learning by pasting content or uploading a file!</p>
+            <router-link to="/activities" class="btn-redirect">Go to Activities</router-link>
           </div>
         </div>
       </div>
@@ -39,8 +50,63 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+
 export default {
   name: 'FeaturesSection',
+  setup() {
+    const activities = ref([])
+    const flashcards = ref([])
+    const quiz = ref([])
+    const isLoggedIn = ref(false)
+    const router = useRouter()
+
+    // Verificar se o usuário está logado
+    const checkLogin = () => {
+      const token = localStorage.getItem('token')
+      if (token) {
+        isLoggedIn.value = true
+        fetchActivities(token)
+      } else {
+        isLoggedIn.value = false
+      }
+    }
+
+    // Obter as atividades do usuário logado
+    const fetchActivities = async (token) => {
+      try {
+        const response = await axios.get('http://localhost:8001/atividades', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        activities.value = response.data
+
+        // Parsear flashcards e quiz
+        if (activities.value.length > 0) {
+          flashcards.value = JSON.parse(activities.value[0].flashcards)
+          quiz.value = JSON.parse(activities.value[0].quiz)
+        }
+      } catch (error) {
+        console.error('Erro ao obter atividades:', error)
+      }
+    }
+
+    // Verificar login assim que o componente for montado
+    onMounted(() => {
+      checkLogin()
+    })
+
+    return {
+      activities,
+      flashcards,
+      quiz,
+      isLoggedIn,
+      router,
+    }
+  },
 }
 </script>
 
@@ -129,5 +195,11 @@ export default {
 
 .quiz-option:hover {
   background-color: #e5e7eb;
+}
+
+.btn-redirect {
+  color: #ad46ff;
+  font-weight: bold;
+  text-decoration: none;
 }
 </style>

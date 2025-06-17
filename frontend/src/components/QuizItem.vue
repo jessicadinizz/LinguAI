@@ -1,16 +1,16 @@
 <template>
   <div v-if="questions.length && current < questions.length" class="quiz-question">
     <p>
-      <strong>{{ questions[current].question }}</strong>
+      <strong>{{ questions[current].pergunta }}</strong>
     </p>
     <ul>
       <li
-        v-for="(opt, i) in questions[current].options"
+        v-for="(opt, i) in questions[current].opcoes"
         :key="i"
         :class="{
           selected: selected === i,
-          correct: showAnswer && opt === questions[current].answer,
-          wrong: showAnswer && selected === i && opt !== questions[current].answer,
+          correct: showAnswer && opt === questions[current].resposta,
+          wrong: showAnswer && selected === i && opt !== questions[current].resposta,
         }"
         @click="!showAnswer && (selected = i)"
       >
@@ -23,11 +23,11 @@
     <button v-else @click="proximaPergunta">Próxima</button>
 
     <p v-if="showAnswer" class="feedback">
-      <span v-if="questions[current].options[selected] === questions[current].answer"
+      <span v-if="questions[current].opcoes[selected] === questions[current].resposta"
         >✅ Correto!</span
       >
       <span v-else
-        >❌ Errado. A resposta correta é: <strong>{{ questions[current].answer }}</strong></span
+        >❌ Errado. A resposta correta é: <strong>{{ questions[current].resposta }}</strong></span
       >
     </p>
   </div>
@@ -55,8 +55,8 @@ export default {
   methods: {
     verificarResposta() {
       this.showAnswer = true
-      const certa = this.questions[this.current].answer
-      const marcada = this.questions[this.current].options[this.selected]
+      const certa = this.questions[this.current].resposta // Fixed: 'resposta' from 'answer'
+      const marcada = this.questions[this.current].opcoes[this.selected] // Fixed: 'opcoes' from 'options'
       if (marcada === certa) {
         this.acertos++
       }
@@ -72,7 +72,6 @@ export default {
 
 <style scoped>
 .quiz-question {
-  background: #111;
   padding: 1rem;
   border-radius: 10px;
   margin-bottom: 2rem;
@@ -82,14 +81,14 @@ ul {
   padding: 0;
 }
 li {
-  background: #222;
+  background: #f9fafe;
   padding: 0.5rem;
   margin: 0.5rem 0;
   cursor: pointer;
   border-radius: 6px;
 }
 li:hover {
-  background: #333;
+  background: #959595;
 }
 .selected {
   border: 2px solid #4fc3f7;
