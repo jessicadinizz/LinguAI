@@ -16,10 +16,29 @@
       </div>
     </div>
 
-    <!-- Success Message Card -->
-    <div v-if="showSuccess" class="success-message-card">
-      <p>Atividade criada com sucesso!</p>
-      <button @click="redirectToActivities" class="success-button">Ir para Atividades</button>
+    <!-- Flashcards Generating Card -->
+    <div v-if="generatingFlashcards" class="progress-card">
+      <p>Gerando flashcards...</p>
+    </div>
+
+    <!-- Quiz Generating Card -->
+    <div v-if="generatingQuiz" class="progress-card">
+      <p>Gerando quiz...</p>
+    </div>
+
+    <!-- Flashcards Success Card -->
+    <div v-if="flashcardsGenerated" class="success-message-card">
+      <p>Flashcards gerados com sucesso!</p>
+    </div>
+
+    <!-- Quiz Success Card -->
+    <div v-if="quizGenerated" class="success-message-card">
+      <p>Quiz gerado com sucesso!</p>
+    </div>
+
+    <!-- Button to view activity after both are generated -->
+    <div v-if="flashcardsGenerated && quizGenerated" class="success-message-card">
+      <button @click="redirectToActivities" class="success-button">Ver atividade</button>
     </div>
 
     <!-- Condicionalmente renderiza o componente Popup -->
@@ -49,6 +68,10 @@ export default {
     const inputText = ref('')
     const showSuccess = ref(false)
     const debugOutput = ref('') // For debugging output
+    const generatingFlashcards = ref(false)
+    const generatingQuiz = ref(false)
+    const flashcardsGenerated = ref(false)
+    const quizGenerated = ref(false)
 
     const router = useRouter() // Using useRouter to get the router instance
 
@@ -74,21 +97,23 @@ export default {
       }
 
       try {
-        // Gerar flashcards reais via API
+        // Iniciar a geração dos flashcards
+        generatingFlashcards.value = true
         const flashcardsResponse = await axios.post('http://127.0.0.1:8001/gerar-flashcards', {
           texto: inputText.value,
         })
         const flashcards = flashcardsResponse.data.conteudo // Dados retornados pela API
+        flashcardsGenerated.value = true // Flashcards gerados com sucesso
+        generatingFlashcards.value = false // Finalizou a geração de flashcards
 
-        // Gerar quiz real via API
+        // Iniciar a geração do quiz
+        generatingQuiz.value = true
         const quizResponse = await axios.post('http://127.0.0.1:8001/gerar-quiz', {
           texto: inputText.value,
         })
         const quiz = quizResponse.data.conteudo // Dados retornados pela API
-
-        // Debugging: Verifique os valores antes de enviar
-        console.log('Flashcards gerados:', flashcards)
-        console.log('Quiz gerado:', quiz)
+        quizGenerated.value = true // Quiz gerado com sucesso
+        generatingQuiz.value = false // Finalizou a geração do quiz
 
         // Enviar atividade para o backend
         const response = await axios.post(
@@ -133,6 +158,10 @@ export default {
       showSuccess,
       redirectToActivities,
       debugOutput, // Retornar debugOutput para o template
+      generatingFlashcards,
+      generatingQuiz,
+      flashcardsGenerated,
+      quizGenerated,
     }
   },
 }
@@ -181,7 +210,15 @@ export default {
   margin-right: 8px;
 }
 
-/* Success Message Styles */
+/* Progress Cards */
+.progress-card {
+  background-color: #f3e8ff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 20px;
+  text-align: center;
+}
+
 .success-message-card {
   background-color: #f3e8ff;
   padding: 16px;
